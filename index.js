@@ -2,13 +2,14 @@ const inquirer = require('inquirer');
 const mysql = require('mysql2/promise');
 const { table } = require('table');
 const { mainQuestions, employeeQuestion, updateQuestion, roleQuestion, departmentQuestion, addManager } = require('./questions');
+require("dotenv").config()
 
 async function init() {
     try {
         const db = await mysql.createConnection({
             host: 'localhost',
             user: 'root',
-            password: 'Lsl110988',
+            password: process.env.DB_PASSWORD,
             database: 'employee_db',
         });
 
@@ -31,7 +32,6 @@ async function init() {
         console.error('Error connecting to the database:', error);
     }
 }
-
 async function handleUserChoice(choice, db) {
     switch (choice) {
         case 'View All Employees':
@@ -40,14 +40,58 @@ async function handleUserChoice(choice, db) {
             console.table(employee);
             break;
             case 'Add Employee':
+                const [rolesChoice] = await db.query('SELECT roles.id as value, roles.title as name FROM roles');
+                const [managerChoice] = await db.query('SELECT manager.id as value, CONCAT(manager.first_name," ", manager.last_name) as name FROM manager')
+                const employeeQuestion = [
+                    {
+                        type: 'input',
+                        name: 'firstName',
+                        message: "What is the employee's first name?"
+                    },
+                    {
+                        type: 'input',
+                        name: 'lastName',
+                        message: "What is the employee's last name?"
+                    },
+                    {
+                        type: 'list',
+                        name: 'roleId',
+                        message: "What is the employee's role?",
+                        choices: rolesChoice
+                    },
+                    {
+                        type: 'list',
+                        name: 'managerId',
+                        message: "What is the employee's manager?",
+                        choices: managerChoice
+                    },
+                ]; 
                 const employeeInput = await inquirer.prompt(employeeQuestion);
                 const [employeeResult] = await db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)',[employeeInput.firstName, employeeInput.lastName, employeeInput.roleId, employeeInput.managerId]
                 );
                 console.log('Employee Added:', employeeResult);
                 break;
             case 'Update Employee Role':
-                const updateAnswers = await inquirer.prompt(updateQuestion);
-                console.log('Role Updated: ', updateAnswers);
+                const [updateRole] = await db.query('SELECT CONCAT(employee.first_name," ", employee.last_name) as name FROM employee')
+                const [upChoice] = await db.query('SELECT roles.id as value, roles.title as name FROM roles');
+                const updateQuestion = [
+                    {
+                        type: 'list',
+                        name: 'firstName',
+                        message: 'Which employee do you want to update?',
+                        choices: updateRole
+                    },
+                    {
+                        type: 'list',
+                        name: 'title',
+                        message: "What is the employee's new role?",
+                        choices: upChoice
+                    }
+                ];
+                const updateAnswer = await inquirer.prompt(updateQuestion);
+                const [upResult] = await db.query('INSERT INTO employee (role_id) VALUE (?)', [updateAnswer.roleId]
+                );
+                console.log('Employee Role Updated:', upResult);
                 break;
             case 'View All Roles':
                 const [roles] = await db.query('SELECT * FROM roles');
@@ -55,10 +99,29 @@ async function handleUserChoice(choice, db) {
                 console.table(roles);
                 break;
             case 'Add Role':
+                const [departChoice] = await db.query('SELECT department.id as value, department.name as name FROM department')
+                const roleQuestion = [
+                    {
+                        type: 'input',
+                        name: 'title',
+                        message: 'What is the name of the role?'
+                    },
+                    {
+                        type: 'input',
+                        name: 'salary',
+                        message: 'What is the salary of the role?'
+                    },
+                    {
+                        type: 'list',
+                        name: 'departmentId',
+                        message: 'Which department does the role belong to?',
+                        choices: departChoice
+                    },
+                ];
                 const roleAnswers = await inquirer.prompt(roleQuestion);
                 const [roleInput] = await db.query('INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)', [roleAnswers.title, roleAnswers.salary, roleAnswers.departmentId]
                 );
-                console.log('New Role Added: ', roleAnswers);
+                console.log('New Role Added: ', roleInput);
                 break;
             case 'View All Department':
                 const [department] = await db.query('SELECT * FROM department');
@@ -77,10 +140,9 @@ async function handleUserChoice(choice, db) {
                 console.table(manager);
                 break;
             case 'Add Manager':
-                inquirer.prompt(addManager)
-                    .then((managerAnswers) => {
-                        console.log('Manager Added: ', managerAnswers);
-                    });
+                const manAnswers = await inquirer.prompt(addManager);
+                const [manResult] = await db.query('INSERT INTO manager (first_name, last_name) VALUES (?, ?)', [manAnswers.firstName, manAnswers.lastName]);
+                console.log('New Manager Added: ', manResult);
                 break;
         default:
             console.log('Invalid choice. Please choose a valid option.');

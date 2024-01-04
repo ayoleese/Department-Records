@@ -1,4 +1,3 @@
-
 const mainQuestions = [
     {
         type: 'list',
@@ -7,7 +6,6 @@ const mainQuestions = [
         choices: ['View All Employees', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Department', 'Add Department', 'View All Managers', 'Add Manager', 'Quit']
     }
 ];
-
 const employeeQuestion = [
     {
         type: 'input',
@@ -23,23 +21,31 @@ const employeeQuestion = [
         type: 'list',
         name: 'role',
         message: "What is the employee's role?",
-        choices: [("")],
+        choices: []
     },
     {
         type: 'list',
         name: 'employeeManager',
         message: "What is the employee's manager?",
-        choices: [("")],
+        choices: []
     },
-];
+]; 
 
 const updateQuestion = [
     {
-        type: 'input',
-        name: 'assignedRole',
-        message: 'Which role do you want to assign the selected employee?'
+        type: 'list',
+        name: 'firstName',
+        message: 'Which employee do you want to update?',
+        choices: []
     },
+    {
+        type: 'list',
+        name: 'title',
+        message: "What is the employee's new role?",
+        choices: []
+    }
 ];
+
 const roleQuestion = [
     {
         type: 'input',
@@ -55,26 +61,27 @@ const roleQuestion = [
         type: 'list',
         name: 'departmentRole',
         message: 'Which department does the role belong to?',
-        choices: [("")]
+        choices: []
     },
 ];
+
 
 const departmentQuestion = [
     {
         type: 'input',
-        name: 'department',
+        name: 'departmentName',
         message: 'What is the name of the Department?',
     }
 ];
 const addManager = [
     {
         type: 'input',
-        name: 'managerFirstName',
+        name: 'firstName',
         message: "What is the manager's first name?"
     },
     {
         type: 'input',
-        name: 'managerLastName',
+        name: 'lastName',
         message: "What is the manager's last name?"
     },
 ];

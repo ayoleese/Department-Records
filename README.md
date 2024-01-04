@@ -25,3 +25,5 @@ THEN I am prompted to select an employee to update and their new role and this i
 ```
 
 [GitHub] https://github.com/ayoleese/Department-Records
+![Screenshot of terminal](<Screenshot 2024-01-04 at 7.43.22 AM.png>)
+[VideoLink] https://drive.google.com/file/d/12H8y_e9TZllcgXi-5htA6JHLriXtAoHR/view
